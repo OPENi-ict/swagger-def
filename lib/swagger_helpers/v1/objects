@@ -50,6 +50,52 @@
                      "responseModel": "ObjectErrorResponse"
                   }
                ]
+            },
+            {
+               "method"     : "GET",
+               "summary"    : "Get all Objects associated with a asingle Cloudlet",
+               "notes"      : "Get all Objects associated with a asingle Cloudlet",
+               "type"       : "AllObjectsResponse",
+               "responseClass" : "AllObjectsResponse",
+               "nickname"   : "getAllObjects",
+               "parameters" : [
+                  {
+                     "name"        : "cloudletId",
+                     "description" : "The id of the users cloudlet.",
+                     "required"    : true,
+                     "type"        : "string",
+                     "paramType"   : "path"
+                  },
+                  {
+                     "name"        : "after",
+                     "description" : "Get Objects after this ID",
+                     "type"        : "string",
+                     "paramType"   : "query"
+                  },
+                  {
+                     "name"        : "count",
+                     "description" : "Number of objects to be returned",
+                     "type"        : "string",
+                     "paramType"   : "query"
+                  }
+               ],
+               "responseMessages": [
+                  {
+                     "code": 400,
+                     "message": "Request Error",
+                     "responseModel": "ObjectErrorResponse"
+                  },
+                  {
+                     "code": 401,
+                     "message": "Unauthorised request",
+                     "responseModel": "ObjectErrorResponse"
+                  },
+                  {
+                     "code": 500,
+                     "message": "Data could not be added to the cloudlet",
+                     "responseModel": "ObjectErrorResponse"
+                  }
+               ]
             }
          ]
       },
@@ -201,6 +247,18 @@
             }
          }
       },
+      "AllObjectsResponse": {
+         "id": "AllObjectsResponse",
+         "properties": {
+            "ids": {
+               "type"        : "array",
+               "description" : "An array of OPENi Object IDs.",
+               "items"       : {
+                  "$ref" : "string"
+               }
+            }
+         }
+      }
       "ObjectErrorResponse": {
          "id": "ObjectErrorResponse",
          "properties": {
