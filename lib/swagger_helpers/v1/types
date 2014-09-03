@@ -13,7 +13,7 @@
             {
                "method"     : "POST",
                "summary"    : "Creates a type.",
-               "notes"      : "<h3>Creates a type on the Cloudlet platform</h3>Creates an OPENi Type on the platform. An OPENi type defines how an OPENi object is structured. A type has a number of required fields including _reference and _context. The _context contains an array of member descriptions that an object requires so that it is compliant with the Type. When an OPENi Object is persisted to the system it is validated against the context as outlined in its OPENiType. <br/><br/>The Types allow for members of the following primitive types to be defined in the OPENi Objects.<br><br><ul><li>boolean</li><li>int</li><li>float</li><li>string</li><li>date(DD-MM-YYYY)</li><li>timestamp(yyyy-MM-dd HH:mm:ss.SSS)</li><li>OPENitype</li></ul>",
+               "notes"      : "<h3>Creates a type on the Cloudlet platform</h3>Creates an OPENi Type on the platform. An OPENi type defines how an OPENi object is structured. A type has a number of required fields including _reference and _context. The _context contains an array of member descriptions that an object requires so that it is compliant with the Type. When an OPENi Object is persisted to the system it is validated against the context as outlined in its OPENiType. <br/><br/>The Types allow for members of the following primitive types to be defined in the OPENi Objects.<br><br><ul><li>boolean</li><li>int</li><li>float</li><li>string</li><li>hexadecimal</li><li>base64</li><li>date(DD-MM-YYYY)</li><li>timestamp(yyyy-MM-dd HH:mm:ss.SSS)</li><li>OPENitype</li></ul>",
                "type"       : "CreateResponse",
                "nickname"   : "createType",
                "parameters" : [
@@ -42,14 +42,20 @@
                "method"     : "PATCH",
                "summary"    : "Create multiple types in a single request.",
                "notes"      : "Create multiple types to a in one go.",
-               "type"       : "CreateResponseArray",
+               "type": "array",
+               "items": {
+                  "$ref" : "CreateResponse"
+               },
                "nickname"   : "createTypes",
                "parameters" : [
                   {
                      "name"         : "body",
                      "description"  : "JSON array of the types to be created.",
                      "required"     : true,
-                     "type"         : "OPENiTypeArray",
+                     "type": "array",
+                     "items": {
+                        "$ref" : "OPENiType"
+                     },
                      "paramType"    : "body"
                   }
                ],
@@ -69,6 +75,65 @@
          ]
       },
       {
+         "path": "/types",
+         "operations": [
+            {
+               "method"     : "GET",
+               "summary"    : "Retrieves the OPENi types on the system.",
+               "notes"      : "Retrieves the OPENi types on the system.. ",
+               "type": "array",
+               "items": {
+                  "$ref" : "OPENiType"
+               },
+               "nickname"   : "getTypes",
+               "parameters" : [
+                  {
+                     "name"        : "skip",
+                     "description" : "Pagination feature, the amount of objects to skip.",
+                     "required"    : false,
+                     "type"        : "int",
+                     "paramType"   : "query"
+                  },
+                  {
+                     "name"        : "limit",
+                     "description" : "The amount of objects to return.",
+                     "required"    : false,
+                     "type"        : "int",
+                     "paramType"   : "query"
+                  },
+                  {
+                     "name"          : "id_only",
+                     "description"   : "If true returns an array of object ids instead of the full objects.",
+                     "required"      : false,
+                     "type"          : "boolean",
+                     "paramType"     : "query",
+                     "allowMultiple" : false
+                  },
+                  {
+                     "name"          : "content-type",
+                     "description"   : "Supported content-type is application/json-ld.",
+                     "required"      : false,
+                     "type"          : "string",
+                     "enum"          : ["application/json-ld"],
+                     "paramType"     : "query",
+                     "allowMultiple" : true
+                  }
+               ],
+               "responseMessages": [
+                  {
+                     "code": 400,
+                     "message": "Object not found",
+                     "responseModel": "ObjectErrorResponse"
+                  },
+                  {
+                     "code": 401,
+                     "message": "Unauthorised request",
+                     "responseModel": "ObjectErrorResponse"
+                  }
+               ]
+            }]
+      },
+      {
          "path": "/types/{typeID}",
          "operations": [
             {
@@ -84,6 +149,15 @@
                      "required"     : true,
                      "type"        : "string",
                      "paramType"    : "path"
+                  },
+                  {
+                     "name"          : "content-type",
+                     "description"   : "Supported content-type is application/json-ld.",
+                     "required"      : false,
+                     "type"          : "string",
+                     "enum"          : ["application/json-ld"],
+                     "paramType"     : "query",
+                     "allowMultiple" : true
                   }
                ],
                "responseMessages": [
@@ -100,40 +174,81 @@
                ]
             }
          ]
+      },
+      {
+         "path": "/types/stats",
+         "operations": [
+            {
+               "method"     : "GET",
+               "summary"    : "Retrieves the Types usage stats.",
+               "notes"      : "Retrieves the Types usage stats.",
+               "type"        : "array",
+               "items"       : {
+                  "$ref" : "Stat"
+               },
+               "nickname"   : "getStats",
+               "parameters" : [
+               ],
+               "responseMessages": [
+                  {
+                     "code": 400,
+                     "message": "Object not found",
+                     "responseModel": "ObjectErrorResponse"
+                  },
+                  {
+                     "code": 401,
+                     "message": "Unauthorised request",
+                     "responseModel": "ObjectErrorResponse"
+                  }
+               ]
+            }]
       }
    ],
    "models": {
       "OPENiType": {
          "id": "OPENiType",
          "properties": {
-            "_id": {
+            "@id": {
                "type"        : "string",
                "description" : "Unique identifier for the type",
                "required"    : false
             },
-            "_context": {
+            "@location": {
+               "type"        : "string",
+               "description" : "Unique types URI",
+               "required"    : false
+            },
+            "@context": {
                "type"        : "array",
                "description" : "An array of Types",
                "items"       : {
                   "$ref" : "ContextEntry"
                }
             },
-            "_reference": {
+            "@reference": {
                "type"        : "string",
                "description" : "The URL of the refernce type.",
                "required"    : true
+            },
+            "_date_created": {
+               "type"        : "Date",
+               "description" : "Date that the Type was created.",
+               "required"    : false
             }
          }
       },
-      "OPENiTypeArray": {
-         "id": "OPENiTypeArray",
+      "Stat": {
+         "id": "Stat",
          "properties": {
-            "types": {
-               "type"        : "array",
-               "description" : "An array of OPENi Types.",
-               "items"       : {
-                  "$ref" : "OPENiType"
-               }
+            "key": {
+               "type"        : "string",
+               "description" : "The stat key",
+               "required"    : true
+            },
+            "value": {
+               "type"        : "int",
+               "description" : "The stat value",
+               "required"    : true
             }
          }
       },
@@ -144,18 +259,6 @@
                "type"        : "string",
                "description" : "The id of the newly created OPENi Type",
                "required"    : true
-            }
-         }
-      },
-      "CreateResponseArray": {
-         "id": "CreateResponseArray",
-         "properties": {
-            "types": {
-               "type"        : "array",
-               "description" : "An array of create responses",
-               "items"       : {
-                  "$ref" : "CreateResponse"
-               }
             }
          }
       },
@@ -172,7 +275,7 @@
       "ContextEntryArray": {
          "id": "ContextEntryArray",
          "properties": {
-            "_context": {
+            "@context": {
                "type"        : "array",
                "description" : "An array of Types",
                "items"       : {
@@ -184,12 +287,12 @@
       "ContextEntry": {
          "id": "ContextEntry",
          "properties": {
-            "_property_name": {
+            "@property_name": {
                "type"        : "string",
                "description" : "Identifier for the context",
                "required"    : true
             },
-            "_property_context": {
+            "@property_context": {
                "type"        : "ContextValue",
                "description" : "The type's semantic context (optional?)",
                "required"    : true
@@ -199,12 +302,12 @@
       "ContextValue": {
          "id": "ContextValue",
          "properties": {
-            "_id": {
+            "@id": {
                "type"        : "string",
                "description" : "Identifier for the context",
                "required"    : true
             },
-            "_openi_type": {
+            "@openi_type": {
                "type"        : "string",
                "description" : "The type's semantic context (optional?)",
                "required"    : true
